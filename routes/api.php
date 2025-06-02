@@ -38,7 +38,7 @@ Route::apiResource('users', UserController::class)
 
 Route::get('/jogadores', [UserController::class, 'listarJogadores']);
 
-Route::middleware(['auth:sanctum', 'verified'])->get('/denuncias/user', [DenunciaController::class, 'showByUser']);
+// Route::middleware(['auth:sanctum', 'verified'])->get('/denuncias/user', [DenunciaController::class, 'showByUser']);
 
 
 
