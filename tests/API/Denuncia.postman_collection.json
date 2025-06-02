@@ -1,0 +1,176 @@
+{
+	"info": {
+		"_postman_id": "374769bd-95dd-4313-95a6-176c6d9f35ac",
+		"name": "Denuncia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39797086"
+	},
+	"item": [
+		{
+			"name": "index/show",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/denuncias/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"denuncias",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "6|oODuxV7jFCBwAtlBw6cTEABUXnzQ08ifiszbpe0k3f9de8c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "        {\r\n            \"coddenuncia\": 2,\r\n            \"denunciante_id\": 4,\r\n            \"denunciado_id\": 3,\r\n            \"descricao\": \"TESTANDO A ROTA POST\",\r\n            \"reg_date\": \"2024-12-15\",\r\n            \"created_at\": \"2024-12-15T21:14:03.000000Z\",\r\n            \"updated_at\": \"2024-12-15T21:14:03.000000Z\"\r\n        }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/denuncias/2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"denuncias",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "STORE",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "6|oODuxV7jFCBwAtlBw6cTEABUXnzQ08ifiszbpe0k3f9de8c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"denunciante_id\": 3,\r\n    \"denunciado_id\": 4,\r\n    \"descricao\": \"TESTANDO A ROTA POST\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/denuncias/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"denuncias",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "6|oODuxV7jFCBwAtlBw6cTEABUXnzQ08ifiszbpe0k3f9de8c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/denuncias/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"denuncias",
+						"3"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
