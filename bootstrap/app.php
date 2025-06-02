@@ -2,34 +2,30 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware; // Corrigido para o namespace correto
+use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
+        api: __DIR__.'/../routes/api.php', // Garante que seu arquivo routes/api.php seja carregado
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
-        apiPrefix: 'api', // Garanta que esta linha existe e está correta
-        // Adicione esta linha para aplicar o grupo de middleware 'api' às suas rotas de API:
-        apiMiddleware: ['api'],
+        apiPrefix: 'api', // Define o prefixo /api para todas as rotas em routes/api.php
+        // A linha apiMiddleware foi removida daqui, pois não é um parâmetro válido aqui.
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Middleware global (executado em todas as requisições)
-        // Exemplo: se você precisar do TrustProxies globalmente (já deve estar configurado se você criou o arquivo e ele é autodescoberto ou registrado)
-        // $middleware->use([
-        // \App\Http\Middleware\TrustProxies::class, // Verifique se este é o caminho correto do seu TrustProxies
-        // ]);
-
-        // Middlewares de API (o grupo 'api')
+        // Definição do grupo de middleware 'api'
+        // Este grupo será aplicado às suas rotas de API através do routes/api.php
         $middleware->group('api', [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, // Se estiver a usar Sanctum para SPAs
-            'throttle:api', // Middleware de rate limiting padrão para API
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, // Descomente se estiver usando Sanctum para autenticação de SPA baseada em cookies
+            'throttle:api', // Rate limiting padrão para APIs (ex: 60 requisições por minuto)
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // Outros middlewares específicos para API podem ir aqui
+            // Se você tiver um middleware de CORS configurado e quiser aplicá-lo apenas à API:
+            // \App\Http\Middleware\HandleCors::class, // Ou o caminho para o seu middleware de CORS
         ]);
 
-        // Middlewares da Web (o grupo 'web') - importante para rotas web
+        // Definição do grupo de middleware 'web'
+        // Importante para suas rotas web (sessões, CSRF, etc.)
         $middleware->group('web', [
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
@@ -37,30 +33,27 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // Outros middlewares para o grupo 'web'
+            // Se você criou App\Http\Middleware\TrustProxies::class, adicione aqui se não for global
+             \App\Http\Middleware\TrustProxies::class, // Para Heroku, geralmente necessário no grupo web
         ]);
 
-        // Aliases de middleware (se você precisar deles)
-        // Exemplo:
-        // $middleware->alias([
-        // 'auth' => \App\Http\Middleware\Authenticate::class,
-        // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class
+        // Middlewares Globais (executados em todas as requisições HTTP)
+        // Se TrustProxies não estiver nos grupos acima e você precisar dele globalmente:
+        // $middleware->use([
+        //     \App\Http\Middleware\TrustProxies::class,
         // ]);
 
-        // Middleware de CORS (Exemplo, se você estiver usando o handler do Laravel)
-        // $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class); // Para CORS global
-        // Ou adicione ao grupo 'api' se for específico para API
+        // Se você usa o HandleCors do Laravel e quer que seja global:
+        // $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
 
-        // Adicione o seu TrustProxies.php ao middleware global se ele não for carregado automaticamente
-        // Normalmente, para o Heroku, você o teria configurado internamente (protected $proxies = '*')
-        // E o Laravel o aplicaria. Se você tem app/Http/Middleware/TrustProxies.php, ele deve ser
-        // incluído na lista de middleware global automaticamente ou você pode adicioná-lo aqui.
-        // A forma como o Laravel 11 carrega middleware padrão mudou um pouco, alguns são por convenção.
-        // Se `TrustProxies` não estiver a funcionar, pode ser necessário adicioná-lo explicitamente:
-         $middleware->prependToGroup('web', \App\Http\Middleware\TrustProxies::class); // Ou adicione globalmente
-         $middleware->prependToGroup('api', \App\Http\Middleware\TrustProxies::class); // Se necessário para API também
-
+        // Aliases de middleware (se você os usa nas suas rotas)
+        // Exemplo:
+        // $middleware->alias([
+        //     'auth' => \App\Http\Middleware\Authenticate::class,
+        //     'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class, // Para verificação de email em rotas web
+        //     'auth.sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, // Alias comum para Sanctum
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Configuração de tratamento de exceções aqui, se necessário
     })->create();
