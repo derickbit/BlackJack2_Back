@@ -1,10 +1,11 @@
 <?php
+<?php
 
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DenunciaUpdateRequest extends FormRequest
+class ReportUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +23,9 @@ class DenunciaUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'denunciante_id' => 'required|integer|exists:users,id', // Verifica se o ID do denunciante existe na tabela users
-            'denunciado_id' => 'required|integer|exists:users,id',   // Verifica se o ID do denunciado existe na tabela users
-            'descricao' => 'required|string|max:255',
+            'user_id' => 'required|integer|exists:users,id',
+            'status' => 'required|string|max:50',
+            'titulo' => 'required|string|max:255',
         ];
     }
-
 }

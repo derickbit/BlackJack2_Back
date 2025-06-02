@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class DenunciaResource extends JsonResource
+class ReportResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,8 +16,11 @@ class DenunciaResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-        ...parent::toArray($request),
-        'imagem'=>$this->when($this->imagem, env('APP_URL') .  Storage::url('denuncias/' . $this->imagem))
+            ...parent::toArray($request),
+            'imagem' => $this->when(
+                $this->imagem,
+                env('APP_URL') . Storage::url('reports/' . $this->imagem)
+            ),
         ];
     }
 }
