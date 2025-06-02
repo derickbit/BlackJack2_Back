@@ -124,3 +124,11 @@ Route::post('/reset-password', function (Request $request) {
         ? response()->json(['message' => 'Senha redefinida com sucesso!'])
         : response()->json(['message' => 'Erro ao redefinir senha.', 'status' => $status], 400);
 });
+
+Route::post('/pingtestlama', function () {
+    return response()->json(['message' => 'pong da API pingtestlama']);
+});
+
+Route::get('/getpingtest', function () {
+    return response()->json(['message' => 'GET pong da API getpingtest']);
+});
