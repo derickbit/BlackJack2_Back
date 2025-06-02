@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,8 +25,8 @@ class AppServiceProvider extends ServiceProvider
                if($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-               ResetPassword::createUrlUsing(function ($notifiable, $token) {
-            return 'http://localhost:5173/redefinir-senha/' . $token . '?email=' . urlencode($notifiable->getEmailForPasswordReset());
-        });
+        //        ResetPassword::createUrlUsing(function ($notifiable, $token) {
+        //     return 'http://localhost:5173/redefinir-senha/' . $token . '?email=' . urlencode($notifiable->getEmailForPasswordReset());
+        // });
     }
 }
