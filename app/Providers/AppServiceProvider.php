@@ -21,7 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+               if($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
                ResetPassword::createUrlUsing(function ($notifiable, $token) {
             return 'http://localhost:5173/redefinir-senha/' . $token . '?email=' . urlencode($notifiable->getEmailForPasswordReset());
         });
