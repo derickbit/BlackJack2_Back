@@ -40,6 +40,17 @@
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
         ],
+        "post-install-cmd": [
+            "@php artisan storage:link --force || true",
+            "@php artisan config:clear --ansi",
+            "@php artisan route:clear --ansi",
+            "@php artisan view:clear --ansi",
+            "@php artisan cache:clear --ansi",
+            "@php echo 'Attempting verbose config cache...'",
+            "@php artisan config:cache -vvv",
+            "@php echo 'Attempting verbose route cache...'",
+            "@php artisan route:cache -vvv"
+        ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
