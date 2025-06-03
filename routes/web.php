@@ -12,6 +12,8 @@ Route::get('/', function () {
 
 Route::get('/ola', [HomeController::class, 'index']);
 
+    Route::post('/login', [LoginController::class, 'login']);
+
 // Rotas para PARTIDAS
 // Route::controller(PartidaController::class)->group(function () {
 //     Route::prefix('/partidas')->group(function () {
