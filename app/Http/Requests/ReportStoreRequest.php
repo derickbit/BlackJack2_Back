@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ReportUpdateRequest extends FormRequest
+class ReportStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,7 +14,9 @@ class ReportUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required|string|in:aberto,respondido,fechado',
+                        'user_id' => 'required|integer|exists:users,id',
+            'status' => 'required|string|max:50', // Pode ajustar se o status inicial é sempre 'aberto'
+            'titulo' => 'required|string|max:255',
         ];
     }
 }
