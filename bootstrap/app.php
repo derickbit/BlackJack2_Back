@@ -3,8 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-// Se o seu App\Http\Middleware\TrustProxies usa Illuminate\Http\Request,
-// o import dele já está lá dentro do arquivo TrustProxies.php.
+use Illuminate\Http\Request; // Necessário para as constantes de header do TrustProxies
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,37 +14,51 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // --- MIDDLEWARES GLOBAIS ---
-        // Aplique seu TrustProxies personalizado aqui, bem no início.
-        $middleware->use([
-            \App\Http\Middleware\TrustProxies::class, // <--- MOVIDO PARA CÁ (GLOBAL)
-            // Se tiver outros middlewares globais, eles vêm depois ou antes,
-            // mas TrustProxies geralmente é bom estar no início.
-            // Exemplo: \Illuminate\Http\Middleware\HandleCors::class, (se o seu CORS for global)
-        ]);
+        // Configura TrustProxies globalmente usando o helper do Laravel 11
+        // Isso usa o middleware Illuminate\Http\Middleware\TrustProxies interno,
+        // mas o configura com suas especificações.
+        $middleware->trustProxies(
+            proxies: '*', // Ou a configuração do seu App\Http\Middleware\TrustProxies::$proxies
+            headers: Request::HEADER_X_FORWARDED_FOR |
+                     Request::HEADER_X_FORWARDED_HOST |
+                     Request::HEADER_X_FORWARDED_PORT |
+                     Request::HEADER_X_FORWARDED_PROTO |
+                     Request::HEADER_X_FORWARDED_AWS_ELB // Ou a configuração do seu App\Http\Middleware\TrustProxies::$headers
+        );
 
-        // Definição do grupo de middleware 'api'
+        // O middleware \Fruitcake\Cors\HandleCors::class (se você usa o pacote fruitcake/laravel-cors)
+        // geralmente é adicionado globalmente pelo seu Service Provider.
+        // Não precisa adicioná-lo explicitamente aqui a menos que saiba que não está funcionando.
+
+        // Middlewares padrões do Laravel 11 como TrimStrings, ConvertEmptyStringsToNull, ValidatePostSize,
+        // PreventRequestsDuringMaintenance geralmente são adicionados pela própria framework
+        // ou através de outros helpers/configurações.
+
+        // --- Seus grupos de middleware ---
         $middleware->group('api', [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
+            'throttle:api', // Garanta que o alias 'throttle:api' esteja definido ou use a classe completa. Padrão: 'throttle:60,1'
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
 
-        // Definição do grupo de middleware 'web'
         $middleware->group('web', [
             \Illuminate\Cookie\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class, // Adicione se usar autenticação de sessão padrão
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // \App\Http\Middleware\TrustProxies::class, // <--- REMOVA DE DENTRO DO GRUPO 'web' SE APLICOU GLOBALMENTE
         ]);
 
-        // Aliases de middleware
-        // $middleware->alias([
-        //     'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-        // ]);
+        // --- Aliases (se necessário) ---
+        $middleware->alias([
+            'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+             // O alias 'throttle' é geralmente definido por padrão.
+             // Se 'throttle:api' não funcionar, verifique se o alias 'throttle' está presente,
+             // ou use a classe completa: \Illuminate\Routing\Middleware\ThrottleRequests::class.
+             // Ex: 'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // ...
