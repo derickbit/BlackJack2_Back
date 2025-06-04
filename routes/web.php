@@ -5,6 +5,7 @@ use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\CartaController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
 
 Route::get('/', function () {
     return 'a rota raiz está funcionando';
