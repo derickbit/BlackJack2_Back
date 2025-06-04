@@ -5,7 +5,7 @@ use App\Http\Controllers\DenunciaController;
 use App\Http\Controllers\CartaController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoginController;
+// use App\Http\Controllers\LoginController;
 
 Route::get('/', function () {
     return 'a rota raiz está funcionando';
@@ -13,7 +13,7 @@ Route::get('/', function () {
 
 Route::get('/ola', [HomeController::class, 'index']);
 
-    Route::post('/login', [LoginController::class, 'login']);
+    // Route::post('/login', [LoginController::class, 'login']);
 
 // Rotas para PARTIDAS
 // Route::controller(PartidaController::class)->group(function () {
