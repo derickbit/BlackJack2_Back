@@ -97,21 +97,33 @@ class PartidaController extends Controller
         }
     }
 
-
-    public function simularPartida(Request $request)
+public function simularPartida(Request $request)
     {
         try {
-            // Obtém o ID do usuário logado (Jogador 1)
-            $jogador1Id = $request->user()->id;
+            // Obtém o usuário logado (Jogador 1)
+            $jogador1 = $request->user();
 
-            // Seleciona um jogador aleatório do banco que não seja o usuário logado
-            $jogador2 = User::where('id', '!=', $jogador1Id)->inRandomOrder()->first();
+            // 1. Verifica se o Jogador 1 (usuário logado) é um administrador
+            if ($jogador1->isAdmin()) { // Usando o método isAdmin() do seu modelo User
+                return response()->json(['message' => 'Administradores não podem iniciar partidas simuladas.'], 403); // 403 Forbidden
+            }
+            $jogador1Id = $jogador1->id;
+
+            // 2. Seleciona um jogador aleatório (Jogador 2) do banco que:
+            //    - Não seja o usuário logado (Jogador 1)
+            //    - Não seja um administrador
+            $jogador2 = User::where('id', '!=', $jogador1Id)
+                              ->where('role', '!=', 'admin') // Assume que a coluna 'role' existe e admins têm o valor 'admin'
+                                                            // Se seu método isAdmin() verifica outra coisa, ajuste esta query
+                              ->inRandomOrder()
+                              ->first();
 
             if (!$jogador2) {
-                return response()->json(['message' => 'Não há jogadores disponíveis para simulação.'], 400);
+                return response()->json(['message' => 'Não há jogadores não-administradores disponíveis para simulação.'], 400);
             }
 
-            // Sorteia um vencedor aleatório
+            // Sorteia um vencedor aleatório entre Jogador 1 e Jogador 2
+            // (Ambos já são garantidos como não-admins neste ponto)
             $vencedorId = rand(0, 1) ? $jogador1Id : $jogador2->id;
 
             // Sorteia uma pontuação de 1 a 5
@@ -127,11 +139,12 @@ class PartidaController extends Controller
 
             return response()->json([
                 'message' => 'Partida simulada com sucesso!',
-                'partida' => $partida,
+                'partida' => $partida->load(['jogador1:id,name', 'jogador2:id,name', 'vencedor:id,name']), // Opcional: carregar nomes para o frontend
             ], 201);
+
         } catch (Exception $e) {
-            \Log::error('Erro ao simular partida: ' . $e->getMessage());
-            return response()->json(['message' => 'Erro ao simular partida.'], 500);
+            Log::error('Erro ao simular partida: ' . $e->getMessage() . ' Stack: ' . $e->getTraceAsString());
+            return response()->json(['message' => 'Erro interno ao simular partida.'], 500);
         }
     }
 

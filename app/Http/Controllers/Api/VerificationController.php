@@ -19,7 +19,7 @@ class VerificationController extends Controller
     public function verify(Request $request, $id, $hash)
     {
         $user = User::find($id);
-        $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:3000'), '/'); // Pega a URL do frontend do .env
+        $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:5173'), '/'); // Pega a URL do frontend do .env
 
         if (!$user) {
             Log::warning('Verificação de email: Usuário não encontrado.', ['id' => $id]);

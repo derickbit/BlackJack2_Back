@@ -25,6 +25,7 @@ Route::middleware('api')->group(function () {
         ->middleware(['signed', 'throttle:6,1']) // 'signed' é crucial para segurança
         ->name('verification.verify'); // <<---- NOME DEVE SER ESTE!
 
+
     // Rota para o frontend solicitar o reenvio do e-mail de verificação.
     // Corresponde ao que você tem no seu componente 'AguardeVerificacao'.
     Route::post('/email/resend-public', [VerificationController::class, 'resend'])
