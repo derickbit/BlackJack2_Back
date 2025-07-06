@@ -16,10 +16,9 @@ class PartidaFactory extends Factory
     public function definition(): array
     {
         return [
-            'jogador1_id' => User::factory(), // Gera um usuário para o Jogador 1
-            'jogador2_id' => User::factory(), // Gera um usuário para o Jogador 2
-            'vencedor_id' => User::factory(), // Gera um usuário para o Vencedor
-            'pontuacao' => $this->faker->numberBetween(0, 100),
+            'jogador' => User::factory(), // Gera um usuário para o Jogador
+            'jogo' => $this->faker->randomElement(['HiLo', 'BlackJack']),
+            'pontuacao' => $this->faker->numberBetween(0, 13),
         ];
     }
 

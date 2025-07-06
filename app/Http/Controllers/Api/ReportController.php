@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Report;
 use Illuminate\Http\Request;
@@ -46,7 +46,7 @@ class ReportController extends Controller
         ];
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store('reports', 'public');
+            $fileName = $request->file('imagem')->store('reports', 's3');
             $messageData['imagem'] = $fileName;
         }
 
@@ -122,7 +122,7 @@ public function addMessage(Request $request, $id)
         ];
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store('reports', 'public');
+            $fileName = $request->file('imagem')->store('reports', 's3');
             $messageData['imagem'] = $fileName;
         }
 

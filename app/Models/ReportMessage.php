@@ -60,7 +60,7 @@ class ReportMessage extends Model
             // o link simbólico criado por `php artisan storage:link`.
             // Certifique-se que APP_URL no seu .env (e nas config vars do Heroku)
             // está correto (ex: https://seu-dominio.com) para que a URL seja gerada corretamente.
-            return Storage::disk('public')->url($this->imagem);
+            return Storage::disk('s3')->url($this->imagem);
         }
         return null;
     }

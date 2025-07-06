@@ -39,7 +39,7 @@ Route::middleware('api')->group(function () {
             return $request->user();
         });
         Route::post('/partidas/simular', [PartidaController::class, 'simularPartida']);
-        Route::get('/partidas/user', [PartidaController::class, 'showByUser']);
+        Route::get('/partidas/user/jogo/{jogo}', [PartidaController::class, 'showByUserByGame']);
         Route::apiResource('partidas', PartidaController::class)->except(['index', 'show']);
         Route::apiResource('users', UserController::class)->except(['index', 'show', 'store']);
         Route::apiResource('reports', ReportController::class);

@@ -22,9 +22,8 @@ class PartidaUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'jogador1_id' => 'required|integer|exists:users,id',
-            'jogador2_id' => 'required|integer|exists:users,id',
-            'vencedor_id' => 'required|integer|exists:users,id',
+            'jogador' => 'required|integer|exists:users,id',
+            'jogo' => 'required|string|max:255',
             'pontuacao' => 'required|integer|min:0',
         ];
     }

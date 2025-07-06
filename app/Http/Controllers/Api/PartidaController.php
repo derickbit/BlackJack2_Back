@@ -42,17 +42,13 @@ class PartidaController extends Controller
             $this->errorHandler("Erro ao cadastrar partida",$error);
     }}
 
-    public function showByUser(Request $request)
+public function showByUserByGame(Request $request, $jogo)
 {
     try {
-        $userId = $request->user()->id; // Obtém o ID do usuário autenticado
-
-        // Busca as partidas do usuário autenticado
-        $partidas = Partida::with(['jogador1', 'jogador2', 'vencedor'])
-        ->where('jogador1_id', $userId)
-        ->orWhere('jogador2_id', $userId)
-        ->get();
-
+        $userId = $request->user()->id;
+        $partidas = Partida::where('jogador', $userId)
+            ->where('jogo', $jogo)
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -69,33 +65,53 @@ class PartidaController extends Controller
 
 
 
-    public function ranking()
-    {
-        try {
-            // Executa a query para calcular o ranking
-            $ranking = DB::table('users')
-                ->leftJoin('partidas', 'users.id', '=', 'partidas.vencedor_id')
-                ->select(
-                    'users.id',
-                    'users.name',
-                    DB::raw('COALESCE(SUM(partidas.pontuacao), 0) AS total_pontuacao')
-                )
-                ->groupBy('users.id', 'users.name')
-                ->orderBy('total_pontuacao', 'desc')
-                ->orderBy('users.name', 'asc')
-                ->get();
+public function ranking()
+{
+    try {
+        // Ranking para HiLo
+        $rankingHiLo = DB::table('users')
+            ->leftJoin('partidas', function ($join) {
+                $join->on('users.id', '=', 'partidas.jogador')
+                     ->where('partidas.jogo', '=', 'HiLo');
+            })
+            ->select(
+                'users.id',
+                'users.name',
+                DB::raw('COALESCE(SUM(partidas.pontuacao), 0) AS total_pontuacao')
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('total_pontuacao', 'desc')
+            ->orderBy('users.name', 'asc')
+            ->get();
 
-            // Retorna o ranking como JSON
-            return response()->json($ranking, 200);
-        } catch (\Exception $e) {
-            // Loga o erro e retorna uma resposta de erro
-            \Log::error('Erro ao calcular o ranking: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Erro ao calcular o ranking',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        // Ranking para BlackJack
+        $rankingBlackJack = DB::table('users')
+            ->leftJoin('partidas', function ($join) {
+                $join->on('users.id', '=', 'partidas.jogador')
+                     ->where('partidas.jogo', '=', 'BlackJack');
+            })
+            ->select(
+                'users.id',
+                'users.name',
+                DB::raw('COALESCE(SUM(partidas.pontuacao), 0) AS total_pontuacao')
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderBy('total_pontuacao', 'desc')
+            ->orderBy('users.name', 'asc')
+            ->get();
+
+        return response()->json([
+            'HiLo' => $rankingHiLo,
+            'BlackJack' => $rankingBlackJack,
+        ], 200);
+    } catch (\Exception $e) {
+        \Log::error('Erro ao calcular o ranking: ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Erro ao calcular o ranking',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
 public function simularPartida(Request $request)
     {
@@ -163,10 +179,9 @@ public function update(PartidaUpdateRequest $request, Partida $partida)
 {
     try {
         $partida->update([
-            'jogador1_id' => $request->input('jogador1_id'),
-            'jogador2_id' => $request->input('jogador2_id'),
-            'vencedor_id' => $request->input('vencedor_id'),
-            'pontuacao' => $request->input('pontuacao'),
+                'jogador' => $request->input('jogador'),
+                'jogo' => $request->input('jogo'),
+                'pontuacao' => $request->input('pontuacao'),
         ]);
 
         return new PartidaUpdatedResource($partida);
