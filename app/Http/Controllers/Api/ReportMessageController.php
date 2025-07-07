@@ -35,7 +35,11 @@ class ReportMessageController extends Controller
         ];
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store('reports', 'public');
+            $fileName = $request->file('imagem')->store(
+    'reports/messages',
+    's3',
+    ['visibility' => 'public']
+);
             $messageData['imagem'] = $fileName;
         }
 

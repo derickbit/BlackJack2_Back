@@ -27,45 +27,41 @@ class ReportController extends Controller
     // Cria um novo report com a primeira mensagem
   // Em App\Http\Controllers\Api\ReportController.php
 
-// Cria um novo report com a primeira mensagem
 public function store(Request $request)
 {
-    $user = $request->user();
-
-    $validatedData = $request->validate([
+    $request->validate([
         'titulo' => 'required|string|max:255',
         'mensagem' => 'required|string|max:1000',
-        'imagem' => 'nullable|image|max:2048', // Ex: max 2MB
+        'imagem' => 'nullable|image', // Você pode adicionar max:2048 aqui se quiser
     ]);
 
-    // 1. Cria o Report apenas com as informações principais
-    $report = $user->reports()->create([
-        'titulo' => $validatedData['titulo'],
-        'status' => 'aberto', // Define um status inicial
+    $report = Report::create([
+        'user_id' => $request->user()->id,
+        'status' => 'aberto',
+        'titulo' => $request->input('titulo'),
     ]);
 
-    // 2. Se houver uma imagem, faz o upload para o S3
-    $imagePath = null;
+    $messageData = [
+        'report_id' => $report->id,
+        'user_id' => $request->user()->id,
+        'mensagem' => $request->input('mensagem'),
+    ];
+
     if ($request->hasFile('imagem')) {
-        // A pasta agora pode incluir o ID do report para melhor organização
-        $folder = "reports/messages/{$report->id}";
-
-        $imagePath = $request->file('imagem')->store(
-            $folder,
+        // <<< AQUI ESTÁ A CORREÇÃO >>>
+        // Altere o caminho de 'reports' para 'reports/messages' para padronizar.
+        // Adicione também a opção de visibilidade para garantir que o arquivo seja público.
+        $fileName = $request->file('imagem')->store(
+            'reports/messages', // Salva na mesma pasta que as mensagens do chat
             's3',
             ['visibility' => 'public']
-        ); // << SINTAXE CORRIGIDA (um ponto e vírgula)
+        );
+        $messageData['imagem'] = $fileName;
     }
 
-    // 3. Cria a primeira ReportMessage associada ao Report
-    $report->messages()->create([
-        'user_id' => $user->id,
-        'mensagem' => $validatedData['mensagem'],
-        'imagem' => $imagePath, // Salva o caminho do S3 (ou null se não houver imagem)
-    ]);
+    $report->messages()->create($messageData);
 
-    // Retorna o report criado com a primeira mensagem e seu usuário
-    return response()->json($report->load('messages.user'), 201);
+    return response()->json(['message' => 'Report criado com sucesso!', 'report' => $report->load('messages.user')], 201);
 }
 
 
