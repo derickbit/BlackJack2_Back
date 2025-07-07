@@ -16,10 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        // 1. FORÇA O MIDDLEWARE DE CORS A SER O PRIMEIRO A RODAR
+        // 1. Força o middleware de CORS a ser o PRIMEIRO a ser executado.
         $middleware->prepend(HandleCors::class);
 
-        // 2. CONFIGURA O TRUSTPROXIES GLOBALMENTE PARA O HEROKU
+        // 2. Configura o TrustProxies globalmente para o Heroku.
         $middleware->trustProxies(
             '*', // proxies
             Request::HEADER_X_FORWARDED_FOR |
@@ -51,5 +51,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // ...
+        // Seu código de tratamento de exceções aqui...
     })->create();
