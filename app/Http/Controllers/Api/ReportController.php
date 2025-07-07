@@ -46,7 +46,11 @@ class ReportController extends Controller
         ];
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store('reports', 's3');
+            $fileName = $request->file('imagem')->store(
+    'reports/messages', // O caminho/pasta onde salvar
+    's3', // O disco a ser usado
+    ['visibility' => 'public'] // <<< OPÇÃO CRUCIAL: torna o arquivo público
+);;
             $messageData['imagem'] = $fileName;
         }
 
@@ -122,7 +126,10 @@ public function addMessage(Request $request, $id)
         ];
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store('reports', 's3');
+            $fileName = $request->file('imagem')->store(    'reports/messages', // O caminho/pasta onde salvar
+    's3', // O disco a ser usado
+    ['visibility' => 'public'] // <<< OPÇÃO CRUCIAL: torna o arquivo público
+            );
             $messageData['imagem'] = $fileName;
         }
 
