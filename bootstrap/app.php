@@ -4,7 +4,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Fruitcake\Cors\HandleCors; // Importa a classe do middleware de CORS
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,10 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        // 1. Força o middleware de CORS a ser o PRIMEIRO a ser executado.
-        $middleware->prepend(HandleCors::class);
-
-        // 2. Configura o TrustProxies globalmente para o Heroku.
+        // 1. Configura o TrustProxies globalmente para o Heroku
         $middleware->trustProxies(
             '*', // proxies
             Request::HEADER_X_FORWARDED_FOR |
@@ -28,6 +24,17 @@ return Application::configure(basePath: dirname(__DIR__))
             Request::HEADER_X_FORWARDED_PROTO |
             Request::HEADER_X_FORWARDED_AWS_ELB // headers
         );
+
+        // 2. <<< MUDANÇA PRINCIPAL: Configura o CORS nativo do Laravel >>>
+        $middleware->handleCors(
+            paths: ['api/*'], // Aplica a todas as rotas de API
+            allowedOrigins: [env('FRONTEND_URL', 'http://localhost:3000')], // Usa sua variável de ambiente
+            allowedMethods: ['*'], // Permite todos os métodos (GET, POST, PUT, etc.)
+            allowedHeaders: ['*'], // Permite todos os cabeçalhos
+            // exposedHeaders: ['Authorization'], // Se o frontend precisar ler algum header específico da resposta
+            // maxAge: 3600,
+        );
+
 
         // Define os grupos de middleware
         $middleware->group('api', [
@@ -51,5 +58,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Seu código de tratamento de exceções aqui...
+        //
     })->create();
