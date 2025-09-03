@@ -36,8 +36,8 @@ class AppServiceProvider extends ServiceProvider
 
     });
 
-        //        ResetPassword::createUrlUsing(function ($notifiable, $token) {
-        //     return 'http://localhost:5173/redefinir-senha/' . $token . '?email=' . urlencode($notifiable->getEmailForPasswordReset());
-        // });
+               ResetPassword::createUrlUsing(function ($notifiable, $token) {
+            return 'http://localhost:5173/redefinir-senha/' . $token . '?email=' . urlencode($notifiable->getEmailForPasswordReset());
+        });
     }
 }

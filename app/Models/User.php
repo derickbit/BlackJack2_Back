@@ -59,4 +59,35 @@ public function isAdmin()
     {
         return $this->hasMany(Denuncia::class, 'denunciado_id');
     }
+
+    public function atualizacoes()
+    {
+        return $this->hasMany(Atualizacao::class);
+    }
+
+    // Relacionamentos do Fórum
+    public function forumTopics()
+    {
+        return $this->hasMany(ForumTopic::class);
+    }
+
+    public function forumComments()
+    {
+        return $this->hasMany(ForumComment::class);
+    }
+
+    public function forumLikes()
+    {
+        return $this->hasMany(ForumLike::class);
+    }
+
+    public function forumMentions()
+    {
+        return $this->hasMany(ForumMention::class, 'user_id');
+    }
+
+    public function forumMentionsMade()
+    {
+        return $this->hasMany(ForumMention::class, 'mentioned_by_user_id');
+    }
 }
