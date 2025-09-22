@@ -227,12 +227,25 @@ class ForumTopicController extends Controller
             if ($request->hasFile('imagem')) {
                 // Remover imagem antiga
                 if ($topic->imagem) {
-                    Storage::disk('s3')->delete($topic->imagem);
+                    $disk = config('filesystems.default');
+                    Storage::disk($disk)->delete($topic->imagem);
                 }
 
                 $image = $request->file('imagem');
-                $imagePath = $image->store('forum/topics', 's3');
-                $data['imagem'] = $imagePath;
+
+                // Usa o disco configurado no .env
+                $disk = config('filesystems.default');
+
+                if ($disk === 's3') {
+                    $imagePath = $image->store('forum/topics', 's3');
+                } else {
+                    $imagePath = $image->store('forum/topics', 'public');
+                }
+
+                // Só salva se o upload foi bem-sucedido
+                if ($imagePath) {
+                    $data['imagem'] = $imagePath;
+                }
             }
 
             $topic->update($data);

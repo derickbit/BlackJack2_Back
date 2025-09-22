@@ -35,12 +35,25 @@ class ReportMessageController extends Controller
         ];
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store(
-    'reports/messages',
-    's3',
-    ['visibility' => 'public']
-);
-            $messageData['imagem'] = $fileName;
+            // Usa o disco configurado no .env (local para desenvolvimento, s3 para produção)
+            $disk = config('filesystems.default');
+
+            if ($disk === 's3') {
+                // Para S3 (produção)
+                $fileName = $request->file('imagem')->store(
+                    'reports/messages',
+                    's3',
+                    ['visibility' => 'public']
+                );
+            } else {
+                // Para local (desenvolvimento) - salva no disco público
+                $fileName = $request->file('imagem')->store('reports', 'public');
+            }
+
+            // Só salva se o upload foi bem-sucedido
+            if ($fileName) {
+                $messageData['imagem'] = $fileName;
+            }
         }
 
         $message = $report->messages()->create($messageData);
@@ -68,9 +81,26 @@ class ReportMessageController extends Controller
         ]);
 
         if ($request->hasFile('imagem')) {
-            $fileName = $request->file('imagem')->store('reports', 'public');
-            $message->imagem = $fileName;
-            $message->save();
+            // Usa o disco configurado no .env (local para desenvolvimento, s3 para produção)
+            $disk = config('filesystems.default');
+
+            if ($disk === 's3') {
+                // Para S3 (produção)
+                $fileName = $request->file('imagem')->store(
+                    'reports/messages',
+                    's3',
+                    ['visibility' => 'public']
+                );
+            } else {
+                // Para local (desenvolvimento) - salva no disco público
+                $fileName = $request->file('imagem')->store('reports', 'public');
+            }
+
+            // Só salva se o upload foi bem-sucedido
+            if ($fileName) {
+                $message->imagem = $fileName;
+                $message->save();
+            }
         }
 
         return response()->json(['message' => 'Mensagem atualizada!', 'data' => $message->load('user')]);

@@ -52,15 +52,20 @@ class ReportMessage extends Model
      *
      * @return string|null
      */
-    public function getImagemUrlAttribute(): ?string // <<< 3. ADICIONE ESTE MÉTODO ACCESSOR
+    public function getImagemUrlAttribute(): ?string
     {
         if ($this->imagem) {
-            // 'public' é o nome do disco configurado em config/filesystems.php
-            // que geralmente aponta para storage/app/public e é acessível via
-            // o link simbólico criado por `php artisan storage:link`.
-            // Certifique-se que APP_URL no seu .env (e nas config vars do Heroku)
-            // está correto (ex: https://seu-dominio.com) para que a URL seja gerada corretamente.
-            return Storage::disk('s3')->url($this->imagem);
+            $disk = config('filesystems.default');
+
+            if ($disk === 's3') {
+                // Para S3 (produção) - usa a URL base configurada
+                $bucket = config('filesystems.disks.s3.bucket');
+                $region = config('filesystems.disks.s3.region');
+                return "https://{$bucket}.s3.{$region}.amazonaws.com/{$this->imagem}";
+            } else {
+                // Para desenvolvimento local
+                return asset('storage/' . $this->imagem);
+            }
         }
         return null;
     }

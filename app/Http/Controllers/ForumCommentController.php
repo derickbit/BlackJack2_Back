@@ -40,6 +40,15 @@ class ForumCommentController extends Controller
             // Removido o else que forçava whereNull('parent_id')
             // Agora retorna TODOS os comentários se não especificar parent_id
 
+            // Se for busca global (sem filtros), retornar TODOS os comentários
+            if (!$request->has('topic_id') && !$request->has('parent_id')) {
+                $comments = $query->orderBy('created_at', 'asc')->get();
+                return response()->json([
+                    'data' => $comments,
+                    'total' => $comments->count()
+                ]);
+            }
+
             $comments = $query->orderBy('created_at', 'asc')
                 ->paginate($request->per_page ?? 20);
 
@@ -91,8 +100,20 @@ class ForumCommentController extends Controller
         // Upload da imagem se fornecida
         if ($request->hasFile('imagem')) {
             $image = $request->file('imagem');
-            $imagePath = $image->store('forum/comments', 's3');
-            $data['imagem'] = $imagePath;
+
+            // Usa o disco configurado no .env (local para desenvolvimento, s3 para produção)
+            $disk = config('filesystems.default');
+
+            if ($disk === 's3') {
+                $imagePath = $image->store('forum/comments', 's3');
+            } else {
+                $imagePath = $image->store('forum/comments', 'public');
+            }
+
+            // Só salva se o upload foi bem-sucedido
+            if ($imagePath) {
+                $data['imagem'] = $imagePath;
+            }
         }
 
         $comment = ForumComment::create($data);
@@ -152,12 +173,25 @@ class ForumCommentController extends Controller
         if ($request->hasFile('imagem')) {
             // Deletar imagem anterior se existir
             if ($comment->imagem) {
-                Storage::disk('s3')->delete($comment->imagem);
+                $disk = config('filesystems.default');
+                Storage::disk($disk)->delete($comment->imagem);
             }
 
             $image = $request->file('imagem');
-            $imagePath = $image->store('forum/comments', 's3');
-            $data['imagem'] = $imagePath;
+
+            // Usa o disco configurado no .env
+            $disk = config('filesystems.default');
+
+            if ($disk === 's3') {
+                $imagePath = $image->store('forum/comments', 's3');
+            } else {
+                $imagePath = $image->store('forum/comments', 'public');
+            }
+
+            // Só salva se o upload foi bem-sucedido
+            if ($imagePath) {
+                $data['imagem'] = $imagePath;
+            }
         }
 
         $comment->update($data);
