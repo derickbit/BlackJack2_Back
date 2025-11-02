@@ -68,7 +68,7 @@ class AtualizacaoController extends Controller
 
         // Upload da imagem se fornecida
         if ($request->hasFile('imagem')) {
-            $imagemPath = $request->file('imagem')->store('atualizacoes', 'public');
+            $imagemPath = $request->file('imagem')->store('atualizacoes', 's3', ['visibility' => 'public']);
         }
 
         $atualizacao = Atualizacao::create([
@@ -118,9 +118,9 @@ class AtualizacaoController extends Controller
         if ($request->hasFile('imagem')) {
             // Deletar imagem antiga se existir
             if ($atualizacao->imagem) {
-                Storage::disk('public')->delete($atualizacao->imagem);
+                Storage::disk('s3')->delete($atualizacao->imagem);
             }
-            $imagemPath = $request->file('imagem')->store('atualizacoes', 'public');
+            $imagemPath = $request->file('imagem')->store('atualizacoes', 's3', ['visibility' => 'public']);
         }
 
         $atualizacao->update([
@@ -151,7 +151,7 @@ class AtualizacaoController extends Controller
 
         // Deletar imagem se existir
         if ($atualizacao->imagem) {
-            Storage::disk('public')->delete($atualizacao->imagem);
+            Storage::disk('s3')->delete($atualizacao->imagem);
         }
 
         $atualizacao->delete();
@@ -188,7 +188,7 @@ class AtualizacaoController extends Controller
         if ($adminCheck) return $adminCheck;
 
         if ($atualizacao->imagem) {
-            Storage::disk('public')->delete($atualizacao->imagem);
+            Storage::disk('s3')->delete($atualizacao->imagem);
             $atualizacao->update(['imagem' => null]);
 
             return response()->json([
