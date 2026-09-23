@@ -17,7 +17,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "5|C5LLRD3IV3QNbOzYv1sOAyWH1JnaKhn0zspk26lk56631979",
+							"value": "{{auth_token}}",
 							"type": "string"
 						}
 					]
@@ -147,7 +147,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "5|C5LLRD3IV3QNbOzYv1sOAyWH1JnaKhn0zspk26lk56631979",
+							"value": "{{auth_token}}",
 							"type": "string"
 						}
 					]

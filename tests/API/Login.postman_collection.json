@@ -58,7 +58,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "4|J13xFtsFELTjXR4zcMg17d3ugUddKgIphrQXKHIe1acf84cf",
+							"value": "{{auth_token}}",
 							"type": "string"
 						}
 					]

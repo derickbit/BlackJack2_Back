@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
@@ -69,17 +70,20 @@ public function store(Request $request)
     public function show($id)
     {
         $report = Report::with('messages.user')->findOrFail($id);
+        Gate::authorize('view', $report);
         return response()->json($report);
     }
 
     // Atualiza o status de um report
     public function update(Request $request, $id)
     {
+        $report = Report::findOrFail($id);
+        Gate::authorize('updateStatus', $report);
+
         $request->validate([
             'status' => 'required|in:aberto,em_análise,concluído',
         ]);
 
-        $report = Report::findOrFail($id);
         $report->status = $request->input('status');
         $report->save();
 
@@ -108,6 +112,7 @@ public function store(Request $request)
     public function destroy($id)
     {
         $report = Report::findOrFail($id);
+        Gate::authorize('delete', $report);
         $report->delete();
 
         return response()->json(['message' => 'Report excluído com sucesso!']);
@@ -117,12 +122,14 @@ public function store(Request $request)
 
 public function addMessage(Request $request, $id)
     {
+        $report = Report::findOrFail($id);
+        Gate::authorize('reply', $report);
+        abort_if($report->status === 'concluído', 403);
+
         $request->validate([
             'mensagem' => 'required|string|max:1000',
             'imagem' => 'nullable|image',
         ]);
-
-        $report = Report::findOrFail($id);
 
         $messageData = [
             'report_id' => $report->id,
@@ -143,4 +150,3 @@ public function addMessage(Request $request, $id)
         return response()->json(['message' => 'Mensagem adicionada com sucesso!', 'report' => $report->load('messages.user')], 201);
     }
 }
-

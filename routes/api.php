@@ -78,7 +78,8 @@ Route::post('/reset-password', function (Request $request) {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [LoginController::class, 'logout']);
         Route::get('/user', function (Request $request) {
-            return $request->user();
+            // Preserve the existing unwrapped /user response for the frontend.
+            return (new \App\Http\Resources\UserResource($request->user()))->resolve($request);
         });
         Route::post('/partidas/simular', [PartidaController::class, 'simularPartida']);
         Route::get('/partidas/user/jogo/{jogo}', [PartidaController::class, 'showByUserByGame']);

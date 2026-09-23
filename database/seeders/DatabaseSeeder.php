@@ -20,6 +20,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (!app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException('Os dados de demonstração não podem ser criados em produção.');
+        }
+
         // Criar usuários básicos (reduzido de 4 para 3)
         $users = User::factory(3)->create();
 
@@ -28,7 +32,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'ADMIN',
             'email' => 'blackjacktcc@gmail.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('senha1'),
+            'password' => Hash::make(\Illuminate\Support\Str::random(64)),
             'role' => 'admin',
         ]);
 

@@ -24,7 +24,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = ['name', 'email', 'password', 'role']; // Colunas que podem ser atribuídas em massa
 
-    protected $hidden = ['password','remember_token']; // Colunas que devem ser ocultadas
+    // Private fields must not leak through nested forum/support responses.
+    // Account endpoints expose their allowlisted fields through UserResource.
+    protected $hidden = ['password', 'remember_token', 'email', 'email_verified_at'];
 
 public function isAdmin()
 {

@@ -38,7 +38,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "6|oODuxV7jFCBwAtlBw6cTEABUXnzQ08ifiszbpe0k3f9de8c7",
+							"value": "{{auth_token}}",
 							"type": "string"
 						}
 					]
@@ -92,7 +92,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "6|oODuxV7jFCBwAtlBw6cTEABUXnzQ08ifiszbpe0k3f9de8c7",
+							"value": "{{auth_token}}",
 							"type": "string"
 						}
 					]
@@ -146,7 +146,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "6|oODuxV7jFCBwAtlBw6cTEABUXnzQ08ifiszbpe0k3f9de8c7",
+							"value": "{{auth_token}}",
 							"type": "string"
 						}
 					]

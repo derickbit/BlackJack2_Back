@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Models\ReportMessage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ReportMessageController extends Controller
 {
     // Lista todas as mensagens de um report
     public function index(Report $report)
     {
+        Gate::authorize('view', $report);
         $messages = $report->messages()->with('user')->orderBy('created_at')->get();
         return response()->json($messages);
     }
@@ -19,6 +21,8 @@ class ReportMessageController extends Controller
     // Adiciona uma mensagem ao report (ADM ou usuário)
     public function store(Request $request, Report $report)
     {
+    Gate::authorize('reply', $report);
+
     if ($report->status === 'concluído') {
         return response()->json(['message' => 'Não é possível adicionar mensagens a um report concluído.'], 403);
     }
@@ -65,12 +69,18 @@ class ReportMessageController extends Controller
     // Exibe uma mensagem específica de um report
     public function show(Report $report, ReportMessage $message)
     {
+        Gate::authorize('view', $report);
+        abort_unless((string) $message->report_id === (string) $report->id, 404);
         return response()->json($message->load('user'));
     }
 
     // Atualiza uma mensagem de um report (ADM ou usuário)
     public function update(Request $request, Report $report, ReportMessage $message)
     {
+        Gate::authorize('reply', $report);
+        abort_unless((string) $message->report_id === (string) $report->id, 404);
+        abort_unless($request->user()->isAdmin() || (string) $request->user()->id === (string) $message->user_id, 403);
+
         $request->validate([
             'mensagem' => 'required|string|max:1000',
             'imagem' => 'nullable|image',
@@ -107,13 +117,15 @@ class ReportMessageController extends Controller
     }
 
     // Exclui uma mensagem de um report (ADM ou usuário)
-    public function destroy(Report $report, ReportMessage $message)
+    public function destroy(Request $request, Report $report, ReportMessage $message)
     {
+        Gate::authorize('reply', $report);
+        abort_unless((string) $message->report_id === (string) $report->id, 404);
+        abort_unless($request->user()->isAdmin() || (string) $request->user()->id === (string) $message->user_id, 403);
         $message->delete();
         return response()->json(['message' => 'Mensagem excluída com sucesso!']);
     }
 }
-
 
 
 

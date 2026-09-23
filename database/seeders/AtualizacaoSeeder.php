@@ -13,6 +13,10 @@ class AtualizacaoSeeder extends Seeder
      */
     public function run(): void
     {
+        if (!app()->environment(['local', 'testing'])) {
+            throw new \RuntimeException('Os dados de demonstração não podem ser criados em produção.');
+        }
+
         // Buscar o primeiro usuário admin ou criar se não existir
         $admin = User::where('role', 'admin')->first();
 
@@ -20,7 +24,7 @@ class AtualizacaoSeeder extends Seeder
             $admin = User::create([
                 'name' => 'Administrador',
                 'email' => 'admin@blackjack.com',
-                'password' => bcrypt('admin123'),
+                'password' => bcrypt(\Illuminate\Support\Str::random(64)),
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]);

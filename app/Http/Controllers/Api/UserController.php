@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
-use App\Http\Resources\UserCollection;
+use App\Http\Resources\PublicUserResource;
 use App\Http\Resources\UserStoredResource;
 use App\Http\Resources\UserUpdatedResource;
 use App\Http\Requests\UserStoreRequest;
@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return new UserCollection(User::all());
+        return PublicUserResource::collection(User::select('id', 'name')->get());
     }
 
     /**
@@ -51,7 +51,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return new UserResource($user);
+        return new PublicUserResource($user);
     }
 
    /**
@@ -60,11 +60,7 @@ class UserController extends Controller
 public function update(UserUpdateRequest $request, User $user)
 {
     try {
-        $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password'),
-        ]);
+        $user->update($request->validated());
 
         return new UserUpdatedResource($user);
     } catch (\Exception $error) {
@@ -81,11 +77,13 @@ public function listarJogadores()
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $User)
+    public function destroy(Request $request, User $user)
     {
+        abort_unless($request->user()->is($user) || $request->user()->isAdmin(), 403);
+
         try{
-            $User->delete();
-            return (new UserResource($User))->additional(["message"=>"User Removida!"]);
+            $user->delete();
+            return (new UserResource($user))->additional(["message"=>"User Removida!"]);
         }catch (Exception $error){
             return $this->errorHandler("Erro ao remover User", $error);
         }

@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\User;
+use Illuminate\Validation\Rule;
 
 class UserUpdateRequest extends FormRequest
 {
@@ -11,7 +13,9 @@ class UserUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $target = $this->route('user');
+
+        return $target instanceof User && $this->user()?->is($target);
     }
 
     /**
@@ -23,7 +27,7 @@ class UserUpdateRequest extends FormRequest
     {
         return [
             "name" => "required|string|max:255",
-            "email" => "required|string|max:255",
+            "email" => ['required', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user'))],
             "password" => "required|string|max:255",
         ];
     }
