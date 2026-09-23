@@ -5,16 +5,18 @@ Branch local: `maintenance/security-local-setup`.
 
 ## Estado
 
-Correções preparadas localmente. Não há push, deploy, migração ou alteração de
-credenciais de produção nesta etapa. Não considerar esta revisão uma auditoria
+Correções enviadas somente à branch de manutenção para validação pelo GitHub Actions.
+Não há merge na master, deploy, migração ou alteração de credenciais de produção
+nesta etapa. Não considerar esta revisão uma auditoria
 completa nem uma confirmação de exploração das falhas. A versão publicada continua
 vulnerável até que uma versão corrigida seja validada e implantada.
 
 Verificação local realizada: 131 arquivos PHP analisados pelo parser JavaScript
 `php-parser` 3.7.0, sem erros sintáticos; `git diff --check` sem erros; configuração
 XML da suite válida; coleções Postman válidas e sem os tokens literais detectados.
-Foram definidos 21 testes. Isso não substitui a execução de PHPUnit: os testes
-de integração ainda não foram executados, pois não há runtime PHP disponível.
+Foram definidos 21 testes. O GitHub Actions executa agora a suite com PHP 8.3 e
+SQLite em memória, sem instalar PHP no PC. Consulte o resultado do commit exato
+na aba Actions antes de aprovar um deploy; a análise estática sozinha não basta.
 
 ## Alterações
 
@@ -63,8 +65,8 @@ desta suite não equivale à aprovação de toda a aplicação.
 
 ## Antes de qualquer deploy
 
-1. Rodar a suite em ambiente descartável e revisar falhas. Ainda não executada
-   com PHP nesta etapa local; não há PHP/Composer disponíveis no PC.
+1. Confirmar a aprovação da suite no GitHub Actions para o commit que será publicado
+   e revisar eventuais falhas. A execução usa ambiente descartável, não a Heroku.
 2. Conferir o repositório do frontend e os clientes Unity: se usam `/api/users/{id}`
    para ler o e-mail do próprio usuário, deverão usar `/api/user` com o token.
    Se existe painel de edição de outras contas, a nova restrição precisa ser tratada.

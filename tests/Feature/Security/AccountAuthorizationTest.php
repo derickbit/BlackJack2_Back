@@ -26,7 +26,8 @@ class AccountAuthorizationTest extends SecurityTestCase
     public function test_user_cannot_update_someone_elses_account(): void
     {
         $owner = User::factory()->create();
-        $original = $owner->getAttributes();
+        // Compare two persisted snapshots, including database defaults such as role.
+        $original = $owner->fresh()->getAttributes();
         Sanctum::actingAs(User::factory()->create());
 
         $this->putJson('/api/users/'.$owner->id, $this->payload())->assertForbidden();
