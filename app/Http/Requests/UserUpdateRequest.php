@@ -25,10 +25,20 @@ class UserUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $passwordRules = ['bail', 'required', 'string', 'max:255'];
+
+        // The published name-edit form sends the existing password in `password`.
+        // Only the password-change form sends `current_password` plus a new password.
+        // Without that separate confirmation, do not allow replacing the password.
+        if (!$this->exists('current_password')) {
+            $passwordRules[] = 'current_password:sanctum';
+        }
+
         return [
             "name" => "required|string|max:255",
             "email" => ['required', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user'))],
-            "password" => "required|string|max:255",
+            'password' => $passwordRules,
+            'current_password' => ['bail', 'sometimes', 'required', 'string', 'max:255', 'current_password:sanctum'],
         ];
     }
 

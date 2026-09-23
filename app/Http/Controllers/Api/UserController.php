@@ -60,7 +60,7 @@ class UserController extends Controller
 public function update(UserUpdateRequest $request, User $user)
 {
     try {
-        $user->update($request->validated());
+        $user->update($request->safe()->only(['name', 'email', 'password']));
 
         return new UserUpdatedResource($user);
     } catch (\Exception $error) {

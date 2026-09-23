@@ -14,7 +14,7 @@ vulnerável até que uma versão corrigida seja validada e implantada.
 Verificação local realizada: 131 arquivos PHP analisados pelo parser JavaScript
 `php-parser` 3.7.0, sem erros sintáticos; `git diff --check` sem erros; configuração
 XML da suite válida; coleções Postman válidas e sem os tokens literais detectados.
-Foram definidos 21 testes. O GitHub Actions executa agora a suite com PHP 8.3 e
+Foram definidos 27 testes. O GitHub Actions executa agora a suite com PHP 8.3 e
 SQLite em memória, sem instalar PHP no PC. Consulte o resultado do commit exato
 na aba Actions antes de aprovar um deploy; a análise estática sozinha não basta.
 
@@ -22,6 +22,11 @@ na aba Actions antes de aprovar um deploy; a análise estática sozinha não bas
 
 - A atualização de perfil só aceita a própria conta; nem administrador pode usar
   esse endpoint para trocar a senha de outra pessoa. Exclusão: dono ou administrador.
+- A troca de senha valida `current_password`. O formulário publicado de alteração
+  de nome envia a senha atual em `password`; esse formato permanece aceito apenas
+  se a senha estiver correta, sem permitir trocar a senha por essa alternativa.
+- A resposta de edição preserva `id` e `role`, pois o frontend substitui o estado
+  da sessão pela resposta. Ela continua sem senha/hash nem `current_password`.
 - Consultas públicas de usuários mantêm as URLs e o envelope `data`, mas retornam
   apenas `id` e `name`. `/api/user` continua autenticado, sem envelope, com os dados
   da própria conta. A resposta de atualização não contém mais o hash da senha.
@@ -67,9 +72,14 @@ desta suite não equivale à aprovação de toda a aplicação.
 
 1. Confirmar a aprovação da suite no GitHub Actions para o commit que será publicado
    e revisar eventuais falhas. A execução usa ambiente descartável, não a Heroku.
-2. Conferir o repositório do frontend e os clientes Unity: se usam `/api/users/{id}`
-   para ler o e-mail do próprio usuário, deverão usar `/api/user` com o token.
-   Se existe painel de edição de outras contas, a nova restrição precisa ser tratada.
+2. Revisão estática do frontend publicado concluída: login/perfil usam `/api/user`;
+   a lista de menções usa `id`/`name` e trata e-mail como opcional; o suporte usa as
+   rotas autenticadas existentes e só mostra mudança de status para administrador.
+   O retorno de edição foi ajustado para preservar a sessão. As pontuações de
+   HiLo/BlackJack são enviadas por `/partidas`, que não foi alterada neste patch.
+   Isso não substitui um teste completo no navegador com o backend atualizado.
+   Há uma página antiga `EditarPerfil.jsx`, não referenciada nas rotas atuais,
+   que precisa de campo `current_password` se vier a ser reativada para trocar senha.
 3. Validar login, cadastro/verificação, edição do próprio perfil, ranking/jogos,
    abertura/resposta de chamado e atendimento administrativo em homologação.
 4. Identificar o provedor do banco da Heroku, confirmar um backup e o procedimento

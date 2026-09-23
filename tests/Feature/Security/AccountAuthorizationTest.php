@@ -12,7 +12,7 @@ class AccountAuthorizationTest extends SecurityTestCase
 {
     private function payload(): array
     {
-        return ['name' => 'Updated player', 'email' => 'updated@example.test', 'password' => 'Test-only-password-123'];
+        return ['name' => 'Updated player', 'email' => 'updated@example.test', 'password' => 'Test-only-password-123', 'current_password' => 'password1'];
     }
 
     public function test_guest_cannot_modify_an_account(): void
@@ -49,8 +49,10 @@ class AccountAuthorizationTest extends SecurityTestCase
         Sanctum::actingAs($owner);
 
         $response = $this->putJson('/api/users/'.$owner->id, $this->payload() + ['role' => 'admin']);
-        $response->assertOk()->assertJsonPath('data.email', 'updated@example.test');
+        $response->assertOk()->assertJsonPath('data.email', 'updated@example.test')
+            ->assertJsonPath('data.id', $owner->id)->assertJsonPath('data.role', $role);
         $this->assertArrayNotHasKey('password', $response->json('data'));
+        $this->assertArrayNotHasKey('current_password', $response->json('data'));
         $this->assertTrue(Hash::check('Test-only-password-123', $owner->fresh()->password));
         $this->assertSame($role, $owner->fresh()->role);
     }
@@ -65,6 +67,69 @@ class AccountAuthorizationTest extends SecurityTestCase
 
         $this->putJson('/api/users/'.$owner->id, $payload)->assertUnprocessable();
         $this->assertSame($owner->email, $owner->fresh()->email);
+    }
+
+    public function test_admin_profile_update_preserves_admin_role_in_response(): void
+    {
+        $owner = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($owner);
+        $this->putJson('/api/users/'.$owner->id, $this->payload())->assertOk()
+            ->assertJsonPath('data.id', $owner->id)->assertJsonPath('data.role', 'admin');
+    }
+
+    public function test_published_name_form_accepts_correct_existing_password(): void
+    {
+        $owner = User::factory()->create();
+        Sanctum::actingAs($owner);
+        $this->putJson('/api/users/'.$owner->id, [
+            'id' => $owner->id, 'name' => 'Renamed', 'email' => $owner->email, 'password' => 'password1',
+        ])->assertOk()->assertJsonPath('data.name', 'Renamed');
+        $this->assertTrue(Hash::check('password1', $owner->fresh()->password));
+    }
+
+    public function test_name_form_cannot_accidentally_replace_password_with_wrong_confirmation(): void
+    {
+        $owner = User::factory()->create();
+        $original = $owner->fresh()->getAttributes();
+        Sanctum::actingAs($owner);
+        $this->putJson('/api/users/'.$owner->id, [
+            'name' => 'Renamed', 'email' => $owner->email, 'password' => 'Wrong-confirmation-123',
+        ])->assertUnprocessable()->assertJsonValidationErrors('password');
+        $this->assertSame($original, $owner->fresh()->getAttributes());
+    }
+
+    public function test_password_change_requires_correct_current_password(): void
+    {
+        $owner = User::factory()->create();
+        $original = $owner->fresh()->getAttributes();
+        Sanctum::actingAs($owner);
+        $payload = $this->payload();
+        $payload['current_password'] = 'Wrong-current-password-123';
+        $this->putJson('/api/users/'.$owner->id, $payload)->assertUnprocessable()
+            ->assertJsonValidationErrors('current_password');
+        $this->assertSame($original, $owner->fresh()->getAttributes());
+    }
+
+    public function test_omitting_current_password_does_not_allow_password_change(): void
+    {
+        $owner = User::factory()->create();
+        Sanctum::actingAs($owner);
+        $payload = $this->payload();
+        unset($payload['current_password']);
+        $this->putJson('/api/users/'.$owner->id, $payload)->assertUnprocessable()
+            ->assertJsonValidationErrors('password');
+        $this->assertTrue(Hash::check('password1', $owner->fresh()->password));
+    }
+
+    public function test_empty_current_password_does_not_bypass_confirmation(): void
+    {
+        $owner = User::factory()->create();
+        Sanctum::actingAs($owner);
+        $payload = $this->payload();
+        $payload['current_password'] = '';
+        $this->putJson('/api/users/'.$owner->id, $payload)->assertUnprocessable()
+            ->assertJsonValidationErrors('current_password');
+        $this->assertTrue(Hash::check('password1', $owner->fresh()->password));
     }
 
     public function test_user_cannot_delete_someone_elses_account(): void

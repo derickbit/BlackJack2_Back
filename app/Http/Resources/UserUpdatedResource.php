@@ -15,12 +15,9 @@ class UserUpdatedResource extends UserResource
      */
     public function toArray($request): array
     {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-        ];
+        // The frontend replaces its authenticated account with this response.
+        // Preserve id/role without ever exposing password hashes.
+        return parent::toArray($request);
     }
 
 
