@@ -16,9 +16,12 @@ class UserUpdatedResource extends UserResource
     public function toArray($request): array
     {
         return [
+            // The frontend replaces its session user with this response.
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'password' => $this->password,
+            'email_verified_at' => $this->email_verified_at,
+            'role' => $this->role,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

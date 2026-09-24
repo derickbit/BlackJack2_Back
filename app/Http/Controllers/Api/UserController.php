@@ -60,11 +60,7 @@ class UserController extends Controller
 public function update(UserUpdateRequest $request, User $user)
 {
     try {
-        $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password'),
-        ]);
+        $user->update($request->safe()->only(['name', 'email', 'password']));
 
         return new UserUpdatedResource($user);
     } catch (\Exception $error) {
