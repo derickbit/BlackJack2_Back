@@ -20,6 +20,11 @@ na aba Actions antes de aprovar um deploy; a análise estática sozinha não bas
 
 ## Alterações
 
+- A inicialização dos dynos Cedar da Heroku agora recria o cache de configuração
+  por meio de `.profile`, depois de carregar as Config Vars da release. Isso evita
+  manter `APP_DEBUG=true` do build anterior após configurar `APP_DEBUG=false`.
+  O processo não inicia se a recriação falhar. Não há migração, seeder ou limpeza
+  do cache de dados nessa inicialização. A CI reproduz e verifica esse cenário.
 - A atualização de perfil só aceita a própria conta; nem administrador pode usar
   esse endpoint para trocar a senha de outra pessoa. Exclusão: dono ou administrador.
 - A troca de senha valida `current_password`. O formulário publicado de alteração
@@ -69,6 +74,22 @@ referem a um modelo/rota antigos e não são cobertos por este workflow. A aprov
 desta suite não equivale à aprovação de toda a aplicação.
 
 ## Antes de qualquer deploy
+
+### Evidências de produção fornecidas pelo responsável
+
+- Provedor identificado no painel: JawsDB MySQL, plano Kitefin Shared.
+- Consulta somente de leitura na aplicação: ambiente `production`, conexão
+  `mysql`, zero registros correspondentes aos hashes dos quatro tokens Postman
+  identificados. Nenhum token foi revogado por esta manutenção. Isso não prova
+  ausência de uso passado nem cobre outras credenciais.
+- APP_KEY configurada e diferente, por comparação SHA-256 do valor, da antiga
+  chave publicada em `.env.testing`. Nenhuma chave foi exibida ou alterada.
+- O responsável informou definir `APP_DEBUG=false` nas Config Vars. A consulta
+  posterior ainda retornou debug ativo e configuração em cache. A correção de
+  inicialização precisa ser publicada e o valor efetivo verificado novamente.
+- Backup/restauração e testes de integração em homologação ainda não confirmados.
+
+### Checklist
 
 1. Confirmar a aprovação da suite no GitHub Actions para o commit que será publicado
    e revisar eventuais falhas. A execução usa ambiente descartável, não a Heroku.

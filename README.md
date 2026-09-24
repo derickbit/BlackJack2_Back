@@ -1,66 +1,75 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CardNest — API backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend da **CardNest**, plataforma web de jogos de cartas desenvolvida como
+Trabalho de Conclusão de Curso em Tecnologia em Sistemas para Internet no IFSul,
+Campus Pelotas, por **Dérick Bitencourte da Silva**.
 
-## About Laravel
+O projeto conecta uma interface em React a jogos Hi-Lo e Blackjack desenvolvidos
+em Unity, reunindo contas de jogadores, partidas, rankings e recursos de comunidade.
+Este repositório contém a API em Laravel; a interface e os jogos ficam em projetos
+separados.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[Conheça a plataforma](https://card-nest.vercel.app) ·
+[Perfil do desenvolvedor](https://github.com/derickbit)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Funcionalidades
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Cadastro, verificação de e-mail, login e recuperação de senha.
+- Perfis de jogadores, registro de partidas, histórico e ranking.
+- Fórum com tópicos, comentários, respostas, curtidas e menções.
+- Chamados de suporte com troca de mensagens e anexos.
+- Publicação de atualizações da plataforma (patch notes).
+- Recursos administrativos para atendimento e gerenciamento de conteúdo.
 
-## Learning Laravel
+## Tecnologias e integração
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **API:** PHP 8.2+, Laravel 11 e Laravel Sanctum.
+- **Persistência:** MySQL e Eloquent ORM.
+- **Arquivos:** integração com armazenamento compatível com Amazon S3.
+- **Hospedagem do backend:** Heroku, com MySQL no JawsDB.
+- **Clientes da plataforma:** React e jogos Unity/C# exportados para WebGL.
+- **Validação:** PHPUnit e GitHub Actions, com banco SQLite em memória nos testes.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+A API expõe recursos JSON sob `/api`. A interface web consome esses recursos para
+autenticação, comunidade e suporte, além de intermediar o envio de pontuações dos
+jogos. As rotas estão em [`routes/api.php`](routes/api.php).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Organização do código
 
-## Laravel Sponsors
+- `app/Http/Controllers`: endpoints e coordenação das operações.
+- `app/Http/Requests`: validação e autorização de requisições.
+- `app/Http/Resources`: formatos das respostas JSON.
+- `app/Models`: entidades e relacionamentos.
+- `app/Policies`: regras de autorização dos chamados.
+- `database/migrations`: estrutura do banco de dados.
+- `tests/Feature/Security`: testes de regressão de contas e suporte.
+- `tests/API`: coleções do Postman; use uma variável local `auth_token`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Testes em ambiente isolado
 
-### Premium Partners
+Com PHP 8.3, Composer e as extensões `mbstring`, `dom`, `xml` e `pdo_sqlite`, em
+uma cópia local descartável, sem credenciais de produção:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```sh
+composer install --no-interaction --prefer-dist --no-scripts --no-plugins
+vendor/bin/phpunit -c phpunit.security.xml --fail-on-warning --fail-on-risky
+```
 
-## Contributing
+O harness de segurança gera uma chave efêmera, usa SQLite em memória e substitui
+o envio de e-mails pelo transporte de testes. Não execute essa suite na Heroku
+nem contra dados reais. O workflow também verifica a atualização do cache de
+configuração durante a inicialização dos dynos.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Estado do projeto
 
-## Code of Conduct
+Projeto acadêmico em manutenção para apresentação no portfólio. A branch
+`maintenance/security-local-setup` reúne correções e testes; suas alterações
+não devem ser consideradas publicadas até a conclusão do deploy.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Os testes focados não equivalem a uma auditoria completa de segurança. O escopo,
+as verificações e as pendências estão em
+[`docs/SECURITY-MAINTENANCE.md`](docs/SECURITY-MAINTENANCE.md).
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Não publique arquivos `.env` com credenciais, tokens, backups ou dados de usuários.
+Para testar a aplicação completa, utilize banco, contas e serviços próprios de
+desenvolvimento. Os seeders de demonstração são restritos a `local` e `testing`.
